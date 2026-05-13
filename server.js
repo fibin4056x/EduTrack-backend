@@ -1,21 +1,59 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import connectDB from "./config/db.js";
-import authRoutes from "./routes/auth.Routes.js";
-import userRoutes from "./routes/user.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+
 dotenv.config();
-connectDB();
 
 const app = express();
+const port = Number(process.env.PORT) || 5000;
+
+const allowedOrigins = process.env.CLIENT_ORIGIN
+  ? process.env.CLIENT_ORIGIN.split(",").map((o) => o.trim())
+  : ["http://localhost:5173"];
+
+/* ================= MIDDLEWARE ================= */
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("CORS blocked"));
+    },
+  })
+);
+
 app.use(express.json());
 
-app.use("/api/auth", authRoutes)
+/* ================= HEALTH ================= */
 app.get("/", (req, res) => {
-
-  res.send("API is running");
+  res.json({ message: "SLMS API running" });
 });
 
-app.use("/api/users", userRoutes);
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    time: new Date().toISOString(),
+  });
+});
 
+/* ================= ROUTES ================= */
+app.use("/api/auth", authRoutes);
 
-app.listen(5000, () => console.log("Server running"));
+/* ================= START ================= */
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    app.listen(port, () => {
+      console.log(`Server running on ${port}`);
+    });
+  } catch (err) {
+    console.error("Server failed:", err.message);
+    process.exit(1);
+  }
+};
+
+startServer();
