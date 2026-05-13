@@ -67,9 +67,7 @@ export const getMeService = async (userId) => {
     throw new ApiError(404, "User not found");
   }
 
-  return {
-    user: buildUser(user),
-  };
+  return buildUser(user);
 };
 
 /* ==================================================
@@ -90,8 +88,5 @@ export const validateUserFromToken = async (userId) => {
     throw new ApiError(403, "Account is not active");
   }
 
-  return {
-    id: user._id,
-    role: user.role,
-  };
+  return buildUser(user);
 };

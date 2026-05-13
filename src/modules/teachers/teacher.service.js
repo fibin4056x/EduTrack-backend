@@ -8,17 +8,19 @@ export const createTeacherService = async (teacherData) => {
         throw new Error("Teacher with this email already exists");
     }
 
-    const teacher = new User.create({
-        ...teacherData,
-        role: "teacher",
-    });
+const teacher = await User.create({
+  ...teacherData,
+  role: "teacher",
+  isActive: true,
+  status: "active",
+});
     return teacher;
 }
 
 export const getAllTeacherService =async () => {
     const teacher = await User.find({
         role:"teacher",
-    }).select("password");
+    }).select("-password");
 
     return teacher;
 }

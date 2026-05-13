@@ -50,12 +50,7 @@ export const authenticate = async (
         decoded.id
       );
 
-    req.user = {
-      id: user._id,
-      role: user.role,
-      email: user.email,
-      status: user.status,
-    };
+    req.user = user;
 
     next();
   } catch (error) {
