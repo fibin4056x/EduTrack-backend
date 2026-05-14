@@ -52,7 +52,7 @@ export const getAllClasses =
 
     } catch (error) {
 
-      res.status(400).json({
+      res.status(500).json({
         success: false,
         message: error.message,
       });
@@ -78,7 +78,7 @@ export const getClassById =
 
     } catch (error) {
 
-      res.status(400).json({
+      res.status(404).json({
         success: false,
         message: error.message,
       });
@@ -133,7 +133,7 @@ export const deleteClass =
 
     } catch (error) {
 
-      res.status(400).json({
+      res.status(404).json({
         success: false,
         message: error.message,
       });
