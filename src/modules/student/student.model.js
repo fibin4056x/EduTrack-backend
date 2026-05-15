@@ -1,6 +1,17 @@
 import mongoose from "mongoose";
 
+const normalizeOptionalString = (value) => {
+  if (
+    value === undefined ||
+    value === null
+  ) {
+    return undefined;
+  }
 
+  const trimmed = String(value).trim();
+
+  return trimmed || undefined;
+};
 
 const studentSchema = new mongoose.Schema(
   {
@@ -40,6 +51,7 @@ const studentSchema = new mongoose.Schema(
     nameArabic: {
       type: String,
       trim: true,
+      set: normalizeOptionalString,
     },
 
     gender: {
@@ -49,12 +61,11 @@ const studentSchema = new mongoose.Schema(
         "female",
         "other",
       ],
-      required: true,
+      set: normalizeOptionalString,
     },
 
     dateOfBirth: {
       type: Date,
-      required: true,
     },
 
 
@@ -65,12 +76,16 @@ const studentSchema = new mongoose.Schema(
 
     examRegisterNumber: {
       type: String,
+      unique: true,
+      sparse: true,
       trim: true,
+      set: normalizeOptionalString,
     },
 
     aadhaarNumber: {
       type: String,
       trim: true,
+      set: normalizeOptionalString,
     },
 
 
@@ -82,6 +97,7 @@ const studentSchema = new mongoose.Schema(
     economicCategory: {
       type: String,
       enum: ["BPL", "APL"],
+      set: normalizeOptionalString,
     },
 
 
@@ -115,13 +131,9 @@ const studentSchema = new mongoose.Schema(
   }
 );
 
-
-
 const StudentModel = mongoose.model(
   "Student",
   studentSchema
 );
-
-
 
 export default StudentModel;

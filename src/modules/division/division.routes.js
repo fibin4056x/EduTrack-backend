@@ -6,6 +6,7 @@ import {
   getDivisionByIdController,
   updateDivisionController,
   deleteDivisionController,
+  getMyDivisionsController,
 } from "./division.controller.js";
 
 import {
@@ -53,6 +54,21 @@ router.get(
 );
 
 
+/* =========================================
+   TEACHER MY DIVISIONS
+========================================= */
+
+router.get(
+  "/my/divisions",
+
+  authenticate,
+
+  authorize("teacher"),
+
+  getMyDivisionsController
+);
+
+
 
 /* =========================================
    GET DIVISION BY ID
@@ -67,7 +83,6 @@ router.get(
 
   getDivisionByIdController
 );
-
 
 
 /* =========================================

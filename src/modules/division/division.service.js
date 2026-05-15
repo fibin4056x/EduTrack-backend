@@ -54,18 +54,21 @@ export const getAllDivisionsService =
     const divisions =
       await DivisionModel.find()
 
-        .populate("classId")
+        .populate(
+          "classId",
+          "name"
+        )
 
-        .populate("assignedTeacher")
+        .populate(
+          "assignedTeacher",
+          "name email"
+        )
 
-        .sort({
-          createdAt: -1,
-        });
-
-
+        .sort({ createdAt: -1 });
 
     return divisions;
   };
+
 
 
 
@@ -149,7 +152,8 @@ export const deleteDivisionService =
   async (divisionId) => {
 
     const deletedDivision =
-      await DivisionModel.findByIdAndDelete(
+    
+    await DivisionModel.findByIdAndDelete(
         divisionId
       );
 
@@ -165,4 +169,23 @@ export const deleteDivisionService =
 
 
     return deletedDivision;
+  };
+  /* =========================================
+   GET DIVISIONS BY TEACHER
+========================================= */
+
+export const getTeacherDivisionsService =
+  async (teacherId) => {
+
+    return await DivisionModel.find({
+      assignedTeacher: teacherId,
+    })
+
+      .populate("classId")
+
+      .populate("assignedTeacher")
+
+      .sort({
+        createdAt: -1,
+      });
   };

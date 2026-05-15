@@ -54,6 +54,20 @@ export const authenticate = async (
 
     next();
   } catch (error) {
+    if (
+      error.message ===
+        "TOKEN_EXPIRED" ||
+      error.message ===
+        "INVALID_TOKEN"
+    ) {
+      return next(
+        new ApiError(
+          401,
+          "Session expired. Please login again"
+        )
+      );
+    }
+
     next(error);
   }
 };

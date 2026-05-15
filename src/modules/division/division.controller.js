@@ -4,6 +4,8 @@ import {
   getDivisionByIdService,
   updateDivisionService,
   deleteDivisionService,
+  getTeacherDivisionsService,
+  
 } from "./division.service.js";
 
 
@@ -174,6 +176,37 @@ export const deleteDivisionController =
     } catch (error) {
 
       res.status(404).json({
+        success: false,
+
+        message: error.message,
+      });
+    }
+  };
+/* =========================================
+   GET MY DIVISIONS
+========================================= */
+
+export const getMyDivisionsController =
+  async (req, res) => {
+
+    try {
+
+      const divisions =
+        await getTeacherDivisionsService(
+          req.user.id
+        );
+
+
+
+      res.status(200).json({
+        success: true,
+
+        data: divisions,
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
         success: false,
 
         message: error.message,

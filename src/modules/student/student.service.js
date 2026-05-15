@@ -1,31 +1,89 @@
-import StudentModel from "./student.model.js";
+import StudentModel
+  from "./student.model.js";
+
+import DivisionModel
+  from "../division/division.model.js";
 
 
+
+/* =========================================
+   HELPERS
+========================================= */
+
+const isBlankValue = (value) =>
+  value === undefined ||
+  value === null ||
+  String(value).trim() === "";
+
+
+
+const normalizeStudentPayload =
+  (studentData) => {
+
+    const payload = {
+      ...studentData,
+    };
+
+    if (
+      isBlankValue(
+        payload.examRegisterNumber
+      )
+    ) {
+      delete payload.examRegisterNumber;
+    }
+
+    return payload;
+  };
+
+
+
+const studentPopulate = [
+  {
+    path: "classId",
+    select: "name",
+  },
+  {
+    path: "divisionId",
+    select: "name",
+  },
+];
+
+
+
+/* =========================================
+   CREATE STUDENT
+========================================= */
 
 export const createStudentService =
   async (studentData) => {
 
     const newStudent =
       await StudentModel.create(
-        studentData
+        normalizeStudentPayload(
+          studentData
+        )
       );
 
-    return await newStudent.populate([
-      "classId",
-      "divisionId",
-    ]);
+    return await newStudent.populate(
+      studentPopulate
+    );
   };
 
 
 
+/* =========================================
+   GET ALL STUDENTS
+========================================= */
+
 export const getAllStudentsService =
   async () => {
 
-    return await StudentModel.find()
+    return await StudentModel
+      .find()
 
-      .populate("classId")
-
-      .populate("divisionId")
+      .populate(
+        studentPopulate
+      )
 
       .sort({
         createdAt: -1,
@@ -34,21 +92,23 @@ export const getAllStudentsService =
 
 
 
+/* =========================================
+   GET STUDENT BY ID
+========================================= */
+
 export const getStudentByIdService =
   async (studentId) => {
 
     const student =
-      await StudentModel.findById(
-        studentId
-      )
+      await StudentModel
+        .findById(studentId)
 
-        .populate("classId")
-
-        .populate("divisionId");
-
-
+        .populate(
+          studentPopulate
+        );
 
     if (!student) {
+
       throw new Error(
         "Student not found"
       );
@@ -59,29 +119,38 @@ export const getStudentByIdService =
 
 
 
+/* =========================================
+   UPDATE STUDENT
+========================================= */
+
 export const updateStudentService =
   async (
     studentId,
     updateData
   ) => {
 
+    const payload =
+      normalizeStudentPayload(
+        updateData
+      );
+
     const updatedStudent =
-      await StudentModel.findByIdAndUpdate(
-        studentId,
-        updateData,
-        {
-          new: true,
-          runValidators: true,
-        }
-      )
+      await StudentModel
+        .findByIdAndUpdate(
+          studentId,
+          payload,
+          {
+            new: true,
+            runValidators: true,
+          }
+        )
 
-        .populate("classId")
-
-        .populate("divisionId");
-
-
+        .populate(
+          studentPopulate
+        );
 
     if (!updatedStudent) {
+
       throw new Error(
         "Student not found"
       );
@@ -92,6 +161,10 @@ export const updateStudentService =
 
 
 
+/* =========================================
+   DELETE STUDENT
+========================================= */
+
 export const deleteStudentService =
   async (studentId) => {
 
@@ -100,13 +173,54 @@ export const deleteStudentService =
         studentId
       );
 
-
-
     if (!deletedStudent) {
+
       throw new Error(
         "Student not found"
       );
     }
 
     return deletedStudent;
+  };
+
+
+
+/* =========================================
+   GET STUDENTS BY DIVISION
+========================================= */
+
+export const getStudentsByDivisionService =
+  async (
+    divisionId,
+    user
+  ) => {
+
+    if (user?.role === "teacher") {
+
+      const assignedDivision =
+        await DivisionModel.findOne({
+          _id: divisionId,
+          assignedTeacher: user.id,
+        });
+
+      if (!assignedDivision) {
+
+        throw new Error(
+          "Division not assigned to this teacher"
+        );
+      }
+    }
+
+    return await StudentModel
+      .find({
+        divisionId,
+      })
+
+      .populate(
+        studentPopulate
+      )
+
+      .sort({
+        createdAt: -1,
+      });
   };
