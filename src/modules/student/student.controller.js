@@ -109,52 +109,11 @@ export const updateStudentController =
 
     try {
 
-      /* =========================================
-         GET STUDENT
-      ========================================= */
-
-      const existingStudent =
-        await getStudentByIdService(
-          req.params.id
-        );
-
-
-
-      /* =========================================
-         TEACHER ACCESS CHECK
-      ========================================= */
-
-      if (
-        req.user.role === "teacher"
-      ) {
-
-        if (
-          existingStudent.divisionId?._id.toString() !==
-          req.user.divisionId
-        ) {
-
-          return res.status(403).json({
-            success: false,
-
-            message:
-              "You can only update students in your assigned division",
-          });
-        }
-      }
-
-
-
-      /* =========================================
-         UPDATE STUDENT
-      ========================================= */
-
       const updatedStudent =
         await updateStudentService(
           req.params.id,
           req.body
         );
-
-
 
       res.status(200).json({
         success: true,
