@@ -1,33 +1,63 @@
 import express from "express";
 import cors from "cors";
+
 import routes from "./routes/index.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import { ENV } from "./config/env.js";
 
 const app = express();
 
-/* ================= CORS ================= */
-const allowedOrigins = ENV.CLIENT_ORIGIN
-  ? ENV.CLIENT_ORIGIN.split(",").map((o) => o.trim())
-  : ["http://localhost:5173"];
+/* =========================
+   CORS
+========================= */
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  ENV.CLIENT_ORIGIN,
+].filter(Boolean);
 
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+    origin: (origin, callback) => {
+
+      // Allow Postman, mobile apps, curl
+      if (!origin) {
         return callback(null, true);
       }
-      return callback(new Error("CORS blocked"));
+
+      // Allow frontend origins
+      if (
+        allowedOrigins.includes(origin)
+      ) {
+        return callback(null, true);
+      }
+
+      // Block unknown origins
+      return callback(
+        new Error("CORS blocked")
+      );
     },
+
+    credentials: true,
   })
 );
 
-/* ================= BODY ================= */
-app.use(express.json());
+/* =========================
+   BODY PARSER
+========================= */
 
-/* ================= HEALTH ================= */
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+/* =========================
+   HEALTH CHECK
+========================= */
+
 app.get("/", (req, res) => {
-  res.json({ message: "SLMS API running" });
+  res.json({
+    message: "SLMS API running",
+  });
 });
 
 app.get("/api/health", (req, res) => {
@@ -37,10 +67,16 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-/* ================= ROUTES ================= */
+/* =========================
+   API ROUTES
+========================= */
+
 app.use("/api", routes);
 
-/* ================= ERROR ================= */
+/* =========================
+   ERROR HANDLER
+========================= */
+
 app.use(errorHandler);
 
 export default app;

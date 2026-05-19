@@ -1,12 +1,4 @@
-
 import express from "express";
-
-import upload
-  from "../../middleware/upload.middleware.js";
-
-import {
-  bulkUploadStudents,
-} from "./student.upload.controller.js";
 
 import {
   createStudentController,
@@ -25,33 +17,7 @@ import {
   authorize,
 } from "../../middleware/role.middleware.js";
 
-
-
-const router =
-  express.Router();
-
-
-
-/* =========================================
-   AUTH
-========================================= */
-
-router.use(authenticate);
-
-
-
-/* =========================================
-   BULK STUDENT UPLOAD
-========================================= */
-
-router.post(
-  "/bulk-upload",
-  authorize("principal"),
-  upload.single("file"),
-  bulkUploadStudents
-);
-
-
+const router = express.Router();
 
 /* =========================================
    CREATE STUDENT
@@ -59,11 +25,13 @@ router.post(
 
 router.post(
   "/",
+
+  authenticate,
+
   authorize("principal"),
+
   createStudentController
 );
-
-
 
 /* =========================================
    GET ALL STUDENTS
@@ -71,11 +39,13 @@ router.post(
 
 router.get(
   "/",
+
+  authenticate,
+
   authorize("principal"),
+
   getAllStudentsController
 );
-
-
 
 /* =========================================
    GET STUDENTS BY DIVISION
@@ -83,14 +53,13 @@ router.get(
 
 router.get(
   "/division/:divisionId",
-  authorize(
-    "principal",
-    "teacher"
-  ),
+
+  authenticate,
+
+  authorize("teacher"),
+
   getStudentsByDivisionController
 );
-
-
 
 /* =========================================
    GET STUDENT BY ID
@@ -98,11 +67,13 @@ router.get(
 
 router.get(
   "/:id",
+
+  authenticate,
+
   authorize("principal"),
+
   getStudentByIdController
 );
-
-
 
 /* =========================================
    UPDATE STUDENT
@@ -110,14 +81,13 @@ router.get(
 
 router.patch(
   "/:id",
-  authorize(
-    "principal",
-    "teacher"
-  ),
+
+  authenticate,
+
+  authorize("principal"),
+
   updateStudentController
 );
-
-
 
 /* =========================================
    DELETE STUDENT
@@ -125,11 +95,12 @@ router.patch(
 
 router.delete(
   "/:id",
+
+  authenticate,
+
   authorize("principal"),
+
   deleteStudentController
 );
 
-
-
 export default router;
-
